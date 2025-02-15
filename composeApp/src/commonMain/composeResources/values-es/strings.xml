@@ -1,0 +1,8 @@
+<resources>
+    <string name="welcome">Bienveidos</string>
+    <string-array name="week_days">
+        <item>Lunes</item>
+        <item>Martes</item>
+        <item>Miercoles</item>
+    </string-array>
+</resources>

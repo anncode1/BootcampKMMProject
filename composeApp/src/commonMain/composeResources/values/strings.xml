@@ -1,0 +1,8 @@
+<resources>
+    <string name="welcome">Welcome</string>
+    <string-array name="week_days">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+    </string-array>
+</resources>
