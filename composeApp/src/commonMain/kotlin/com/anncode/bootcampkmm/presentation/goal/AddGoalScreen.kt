@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.ImportContacts
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.LocalDrink
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,24 +35,41 @@ import bootcampkmmproject.composeapp.generated.resources.pick_icon
 import bootcampkmmproject.composeapp.generated.resources.save_goal
 import bootcampkmmproject.composeapp.generated.resources.title
 import bootcampkmmproject.composeapp.generated.resources.week_days
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.anncode.bootcampkmm.domain.goal.Goal
+import com.anncode.bootcampkmm.presentation.AppScreen
 import com.anncode.bootcampkmm.presentation.composables.core.ChipGroup
 import com.anncode.bootcampkmm.presentation.composables.core.ChipGroupMultiselect
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
+class AddGoalScreen(private val viewModel: GoalViewModel) : AppScreen() {
+
+    override val topBarTitle: (@Composable () -> Unit)?
+        get() = {
+            Text(stringResource(Res.string.new_goal))
+        }
+
+    override val contentComposable: @Composable () -> Unit
+        get() = { AddGoal(viewModel) }
+}
+
 @Composable
-fun AddGoalScreen() {
+fun AddGoal(viewModel: GoalViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
+        var title by rememberSaveable { mutableStateOf("") }
+        var description by rememberSaveable { mutableStateOf("") }
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(vertical = 60.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
+            /*Text(
                 stringResource(Res.string.new_goal),
                 style = MaterialTheme.typography.displaySmall
-            )
+            )*/
 
-            var title by rememberSaveable { mutableStateOf("") }
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
@@ -65,7 +83,7 @@ fun AddGoalScreen() {
                 maxLines = 1
             )
 
-            var description by rememberSaveable { mutableStateOf("") }
+
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
@@ -103,9 +121,14 @@ fun AddGoalScreen() {
 
         }
 
+        val navigator = LocalNavigator.currentOrThrow
+
         Button(
             modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter).padding(PaddingValues(0.dp,0.dp,0.dp,16.dp)),
-            onClick = {},
+            onClick = {
+                viewModel.onEvent(UIEvent.SaveGoal(goal = Goal(1, title, description)))
+                navigator.pop()
+            },
         ) {
             Text(stringResource(Res.string.save_goal))
         }
@@ -125,4 +148,5 @@ enum class GoalIcons(
     FITNESS(Icons.Default.FitnessCenter),
     SLEEP(Icons.Default.Bedtime),
     BOOK(Icons.Default.ImportContacts),
+    PETS(Icons.Default.Pets),
 }
