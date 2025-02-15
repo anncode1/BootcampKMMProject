@@ -1,8 +1,35 @@
 <resources>
-    <string name="welcome">Bienveidos</string>
+    <string name="welcome">Bienvenida Ann</string>
+    <string name="today_goals">Tus objetivos de hoy son</string>
+    <string name="new_goal">Nuevo Objetivo</string>
+    <string name="title">Título</string>
+    <string name="description">Descripción</string>
+    <string name="pick_icon">Selecciona un Ícono</string>
+    <string name="frequency">Frecuencia</string>
+    <string name="save_goal">Guardar Objetivo</string>
+    <string name="add_goal">Añadir Objetivo</string>
     <string-array name="week_days">
         <item>Lunes</item>
         <item>Martes</item>
         <item>Miercoles</item>
+        <item>Jueves</item>
+        <item>Viernes</item>
+        <item>Sabado</item>
+        <item>Domingo</item>
+    </string-array>
+
+    <string-array name="months">
+        <item>Enero</item>
+        <item>Febrero</item>
+        <item>Marzo</item>
+        <item>Abril</item>
+        <item>Mayo</item>
+        <item>Junio</item>
+        <item>Julio</item>
+        <item>Agosto</item>
+        <item>Septiembre</item>
+        <item>Octubre</item>
+        <item>Noviembre</item>
+        <item>Diciembre</item>
     </string-array>
 </resources>
