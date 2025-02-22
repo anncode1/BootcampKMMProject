@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Goal(
+fun GoalCard(
     icon: ImageVector,
     title: String,
     description: String

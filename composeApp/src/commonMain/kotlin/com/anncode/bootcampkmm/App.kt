@@ -6,6 +6,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
 import com.anncode.bootcampkmm.presentation.goal.GoalViewModel
 import com.anncode.bootcampkmm.presentation.home.HomeScreen
 import com.anncode.bootcampkmm.presentation.theme.AppTheme
@@ -23,8 +24,9 @@ fun App() {
             //AddGoalScreen()
 
             val goalViewModel = GoalViewModel()
-
-            Navigator(HomeScreen(goalViewModel))
+            Navigator(HomeScreen(goalViewModel)) { navigator ->
+                SlideTransition(navigator)
+            }
 
         }
     }
