@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -14,8 +15,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -32,6 +37,7 @@ import com.anncode.bootcampkmm.presentation.composables.core.GoalScaffold
 import com.anncode.bootcampkmm.presentation.composables.goal.GoalCard
 import com.anncode.bootcampkmm.presentation.goal.AddGoalScreen
 import com.anncode.bootcampkmm.presentation.goal.GoalViewModel
+import com.anncode.bootcampkmm.presentation.goal.UIEvent
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -52,18 +58,28 @@ fun Home(viewModel: GoalViewModel) {
         ) {
 
             val homeState by viewModel.onState.collectAsState()
+            var months by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
+            months = stringArrayResource(Res.array.months)
+
+            LaunchedEffect(key1 = months) {
+                viewModel.onEvent(UIEvent.LoadMonths(months))
+                viewModel.onEvent(UIEvent.LoadGoals())
+            }
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 Column {
                     Text(
-                        stringArrayResource(Res.array.months)[2],
+                        homeState.month,
                         style = MaterialTheme.typography.titleMedium
                     )
-                    val l = 1..30
-                    ChipGroup(elements = l.toList(), initialState = 0) { _, _ ->
 
+                    ChipGroup(
+                        modifier = Modifier.size(55.dp),
+                        elements = homeState.days,
+                        initialState = homeState.currentDayIndex
+                    ) { index, day ->
                     }
                 }
 

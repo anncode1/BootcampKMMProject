@@ -3,6 +3,7 @@ package com.anncode.bootcampkmm.presentation.composables.core
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -12,12 +13,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Composable
 fun <T> ChipGroup(
@@ -35,9 +39,13 @@ fun <T> ChipGroup(
         )
     }
 
-    var chipSelectedState by remember { mutableStateOf(initialState) }
+    var chipSelectedState by rememberSaveable { mutableStateOf(0) }
+    chipSelectedState = initialState
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     LazyRow (
-        horizontalArrangement = Arrangement.spacedBy(3.dp)
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        state = listState
     ) {
 
         elements.forEachIndexed { index, element ->
@@ -72,6 +80,11 @@ fun <T> ChipGroup(
 
                 )
             }
+        }
+
+        coroutineScope.launch {
+            val element = if (chipSelectedState >= 3) chipSelectedState - 3 else 0
+            listState.animateScrollToItem(index = element)
         }
     }
 
