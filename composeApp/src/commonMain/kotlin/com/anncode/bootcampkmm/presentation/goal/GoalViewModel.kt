@@ -1,6 +1,7 @@
 package com.anncode.bootcampkmm.presentation.goal
 
 import com.anncode.bootcampkmm.domain.goal.Goal
+import com.anncode.bootcampkmm.domain.goal.GoalDay
 import com.anncode.bootcampkmm.domain.goal.repository.GoalsRepository
 import com.anncode.bootcampkmm.presentation.AbstractViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,13 +33,13 @@ class GoalViewModel(
             is UIEvent.LoadMonths -> months.value = intent.months
             is UIEvent.LoadGoals -> getGoalsBy(intent.date)
             is UIEvent.SaveGoal -> saveGoal(intent.goal)
-            is UIEvent.OnCompleteGoal -> completeGoal(intent.goal, intent.isCompleted)
+            is UIEvent.OnCompleteGoal -> completeGoal(intent.goalDay)
         }
     }
 
-    private fun completeGoal(goal: Goal, completed: Boolean) {
+    private fun completeGoal(goalDay: GoalDay) {
         coroutineScope.launch {
-            goalsRepository.completeGoal()
+            goalsRepository.completeGoal(goalDay)
         }
     }
 
@@ -97,8 +98,6 @@ sealed class UIEvent{
 
     data class SaveGoal(val goal: Goal) : UIEvent()
     data class OnCompleteGoal(
-        val goal: Goal,
-        val currentDate: LocalDate,
-        val isCompleted: Boolean
+        val goalDay: GoalDay
     ) : UIEvent()
 }

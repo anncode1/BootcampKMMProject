@@ -31,6 +31,7 @@ import bootcampkmmproject.composeapp.generated.resources.welcome
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.anncode.bootcampkmm.domain.goal.GoalDay
 import com.anncode.bootcampkmm.presentation.composables.core.ChipGroup
 import com.anncode.bootcampkmm.presentation.composables.core.GoalScaffold
 import com.anncode.bootcampkmm.presentation.composables.goal.GoalCard
@@ -125,9 +126,11 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                             ) { isCompleted ->
                                 viewModel.onEvent(
                                     UIEvent.OnCompleteGoal(
-                                        goal,
-                                        currentDateSelected,
-                                        isCompleted
+                                        GoalDay(
+                                            goal,
+                                            currentDateSelected,
+                                            isCompleted
+                                        )
                                     )
                                 )
                             }
