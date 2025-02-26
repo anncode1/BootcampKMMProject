@@ -40,7 +40,7 @@ INSERT INTO GoalDayEntity (goalId, date, isCompleted)
 VALUES (?, ?, ?);
 
 selectGoalsByDate:
-SELECT g.*
+SELECT g.*, gd.*
 FROM GoalEntity g
 INNER JOIN GoalDayEntity gd ON g.id = gd.goalId
 WHERE gd.date = ?;

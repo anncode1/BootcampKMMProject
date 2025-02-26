@@ -71,7 +71,7 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                 mutableStateOf(
                     Clock.System.todayIn(
                         TimeZone.currentSystemDefault()
-                    )
+                    ).toString()
                 )
             }
 
@@ -97,9 +97,9 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                     ) { index, day ->
 
                         val dateTmp = Clock.System.todayIn(TimeZone.currentSystemDefault())
-                        currentDateSelected = LocalDate(dateTmp.year, dateTmp.month, day.toInt()) // 2025-02-25
+                        currentDateSelected = LocalDate(dateTmp.year, dateTmp.month, day.toInt()).toString() // 2025-02-25
                         viewModel.onEvent(UIEvent.LoadGoals(
-                            date = currentDateSelected
+                            date = LocalDate.parse(currentDateSelected)
                         ))
                     }
                 }
@@ -118,18 +118,20 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
 
                 if (homeState.goals.isNotEmpty()) {
                     LazyColumn {
-                        items(homeState.goals) { goal ->
+                        items(homeState.goals) { goalDay ->
                             GoalCard(
-                                GoalIcons.valueOf(goal.icon).icon,
-                                goal.title,
-                                goal.description
+                                GoalIcons.valueOf(goalDay.goal.icon).icon,
+                                goalDay.goal.title,
+                                goalDay.goal.description,
+                                goalDay.isCompleted
                             ) { isCompleted ->
                                 viewModel.onEvent(
                                     UIEvent.OnCompleteGoal(
                                         GoalDay(
-                                            goal,
-                                            currentDateSelected,
-                                            isCompleted
+                                            goalDay.id,
+                                            goal = goalDay.goal,
+                                            date = goalDay.date,
+                                            isCompleted = isCompleted
                                         )
                                     )
                                 )

@@ -8,7 +8,7 @@ import kotlinx.datetime.LocalDate
 interface GoalsRepository {
     suspend fun insertGoal(goal: Goal)
     suspend fun insertGoalByDate(date: LocalDate)
-    suspend fun getGoalsBy(date: LocalDate): Flow<List<Goal>>
+    suspend fun getGoalsBy(date: LocalDate): Flow<List<GoalDay>>
     suspend fun completeGoal(goalDay: GoalDay)
     suspend fun getAllGoals(): Flow<List<Goal>>
 }

@@ -12,6 +12,7 @@ data class Goal(
 )
 
 data class GoalDay(
+    val id: Long = 0,
     val goal: Goal,
     val date: LocalDate,
     val isCompleted: Boolean

@@ -68,8 +68,14 @@ fun AddGoal(viewModel: GoalViewModel = koinInject()) {
         Box(modifier = Modifier.fillMaxSize()) {
             var title by rememberSaveable { mutableStateOf("") }
             var description by rememberSaveable { mutableStateOf("") }
-            var icon by rememberSaveable { mutableStateOf("") }
-            val frequency = rememberSaveable { mutableSetOf<DayOfWeek>() }
+            var icon by rememberSaveable { mutableStateOf(GoalIcons.WATER.name) }
+            val frequency by rememberSaveable {
+                    mutableStateOf(
+                        defaultDaysSelected().map { i ->
+                            getDayWeekBy(i)
+                        }.toMutableSet()
+                    )
+            }
 
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -89,7 +95,6 @@ fun AddGoal(viewModel: GoalViewModel = koinInject()) {
                     maxLines = 1
                 )
 
-
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = {
@@ -102,15 +107,11 @@ fun AddGoal(viewModel: GoalViewModel = koinInject()) {
                     maxLines = 2
                 )
 
-
-
-
                 ChipGroup(
                     title = stringResource(Res.string.pick_icon),
                     elements = GoalIcons.entries.map { it.icon },
                     initialState = 0,
                     onChipSelected = { _, iconVector ->
-                        println(iconVector)
                         icon = GoalIcons.fromImageVector(iconVector).name
                     }
                 )
@@ -122,7 +123,7 @@ fun AddGoal(viewModel: GoalViewModel = koinInject()) {
                 ChipGroupMultiselect(
                     title = stringResource(Res.string.frequency),
                     elements = weekDays,
-                    initialState = setOf(0, 2, 4),
+                    initialState = defaultDaysSelected(),
                     onChipSelected = { items ->
                         frequency.clear()
                         frequency.addAll(items.map { getDayWeekBy(it) })
@@ -154,6 +155,8 @@ fun AddGoal(viewModel: GoalViewModel = koinInject()) {
     }
 
 }
+
+private fun defaultDaysSelected() = setOf(0, 2, 4)
 
 fun getDayWeekBy(index: Int): DayOfWeek {
     return when (index) {

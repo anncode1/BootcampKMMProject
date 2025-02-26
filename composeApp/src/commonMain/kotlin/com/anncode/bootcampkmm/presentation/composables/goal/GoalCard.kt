@@ -31,9 +31,11 @@ fun GoalCard(
     icon: ImageVector,
     title: String,
     description: String,
+    isCompleted: Boolean,
     onComplete: (isCompleted: Boolean) -> Unit
 ) {
     var checkedState by remember { mutableStateOf(false) }
+    checkedState = isCompleted
     Card (
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier.fillMaxWidth().padding(8.dp),

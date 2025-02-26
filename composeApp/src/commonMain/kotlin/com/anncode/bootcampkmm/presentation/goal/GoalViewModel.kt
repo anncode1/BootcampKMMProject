@@ -83,7 +83,7 @@ data class UIState(
     val month: String = "",
     val days: List<String> = emptyList(),
     val currentDayIndex: Int = 0,
-    val goals: List<Goal> = emptyList(),
+    val goals: List<GoalDay> = emptyList(),
     val userName: String = ""
 )
 
