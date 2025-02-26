@@ -1,0 +1,56 @@
+import kotlin.Boolean;
+
+
+CREATE TABLE GoalEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT,
+    icon TEXT NOT NULL,
+    frequency TEXT NOT NULL -- Días de la semana separados por comas (ej: "LUNES,MARTES,JUEVES")
+);
+
+CREATE TABLE GoalDayEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    goalId INTEGER NOT NULL,
+    date TEXT NOT NULL, -- Fecha en formato YYYY-MM-DD
+    isCompleted INTEGER AS Boolean NOT NULL DEFAULT 0,
+    FOREIGN KEY (goalId) REFERENCES GoalEntity(id) ON DELETE CASCADE
+);
+
+-- Consultas
+selectAllGoals:
+SELECT * FROM GoalEntity;
+
+selectGoalById:
+SELECT * FROM GoalEntity WHERE id = ?;
+
+selectGoalByDay:
+SELECT * FROM GoalEntity WHERE frequency LIKE ?;
+
+insertGoal:
+INSERT INTO GoalEntity (title, description, icon, frequency)
+VALUES (?, ?, ?, ?);
+
+updateIsCompletedGoal:
+UPDATE GoalDayEntity SET isCompleted = ?
+WHERE goalId = ? AND date = ?;
+
+insertGoalDay:
+INSERT INTO GoalDayEntity (goalId, date, isCompleted)
+VALUES (?, ?, ?);
+
+selectGoalsByDate:
+SELECT g.*
+FROM GoalEntity g
+INNER JOIN GoalDayEntity gd ON g.id = gd.goalId
+WHERE gd.date = ?;
+
+selectGoalDayByIdAndDate:
+SELECT * FROM GoalDayEntity
+WHERE goalId = ? AND date = ?;
+
+
+
+
+
+

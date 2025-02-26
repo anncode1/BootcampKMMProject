@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,22 +35,28 @@ import com.anncode.bootcampkmm.presentation.composables.core.ChipGroup
 import com.anncode.bootcampkmm.presentation.composables.core.GoalScaffold
 import com.anncode.bootcampkmm.presentation.composables.goal.GoalCard
 import com.anncode.bootcampkmm.presentation.goal.AddGoalScreen
+import com.anncode.bootcampkmm.presentation.goal.GoalIcons
 import com.anncode.bootcampkmm.presentation.goal.GoalViewModel
 import com.anncode.bootcampkmm.presentation.goal.UIEvent
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
-class HomeScreen(private val viewModel: GoalViewModel) : Screen {
+class HomeScreen : Screen {
 
     @Composable
     override fun Content() {
-        Home(viewModel)
+        Home()
     }
 }
 
 
 @Composable
-fun Home(viewModel: GoalViewModel) {
+fun Home(viewModel: GoalViewModel = koinInject()) {
     GoalScaffold {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -60,6 +65,14 @@ fun Home(viewModel: GoalViewModel) {
             val homeState by viewModel.onState.collectAsState()
             var months by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
             months = stringArrayResource(Res.array.months)
+
+            var currentDateSelected by rememberSaveable {
+                mutableStateOf(
+                    Clock.System.todayIn(
+                        TimeZone.currentSystemDefault()
+                    )
+                )
+            }
 
             LaunchedEffect(key1 = months) {
                 viewModel.onEvent(UIEvent.LoadMonths(months))
@@ -75,11 +88,18 @@ fun Home(viewModel: GoalViewModel) {
                         style = MaterialTheme.typography.titleMedium
                     )
 
+                    // Days list
                     ChipGroup(
                         modifier = Modifier.size(55.dp),
                         elements = homeState.days,
                         initialState = homeState.currentDayIndex
                     ) { index, day ->
+
+                        val dateTmp = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                        currentDateSelected = LocalDate(dateTmp.year, dateTmp.month, day.toInt()) // 2025-02-25
+                        viewModel.onEvent(UIEvent.LoadGoals(
+                            date = currentDateSelected
+                        ))
                     }
                 }
 
@@ -99,10 +119,18 @@ fun Home(viewModel: GoalViewModel) {
                     LazyColumn {
                         items(homeState.goals) { goal ->
                             GoalCard(
-                                Icons.Default.LocalDrink,
+                                GoalIcons.valueOf(goal.icon).icon,
                                 goal.title,
                                 goal.description
-                            )
+                            ) { isCompleted ->
+                                viewModel.onEvent(
+                                    UIEvent.OnCompleteGoal(
+                                        goal,
+                                        currentDateSelected,
+                                        isCompleted
+                                    )
+                                )
+                            }
                         }
                     }
                 }
@@ -112,7 +140,7 @@ fun Home(viewModel: GoalViewModel) {
             val navigator = LocalNavigator.currentOrThrow
             FloatingActionButton(
                 onClick = {
-                    navigator.push(AddGoalScreen(viewModel))
+                    navigator.push(AddGoalScreen())
                 },
                 modifier = Modifier.align(Alignment.BottomEnd)
             ) {

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.ImportContacts
@@ -16,11 +15,6 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -42,27 +36,27 @@ import bootcampkmmproject.composeapp.generated.resources.title
 import bootcampkmmproject.composeapp.generated.resources.week_days
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.anncode.bootcampkmm.domain.goal.Goal
 import com.anncode.bootcampkmm.presentation.composables.core.ChipGroup
 import com.anncode.bootcampkmm.presentation.composables.core.ChipGroupMultiselect
 import com.anncode.bootcampkmm.presentation.composables.core.GoalCenterTopBar
 import com.anncode.bootcampkmm.presentation.composables.core.GoalScaffold
-import com.anncode.bootcampkmm.presentation.home.Home
+import kotlinx.datetime.DayOfWeek
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
-class AddGoalScreen(private val viewModel: GoalViewModel) : Screen {
+class AddGoalScreen() : Screen {
 
     @Composable
     override fun Content() {
-        AddGoal(viewModel)
+        AddGoal()
     }
 }
 
 @Composable
-fun AddGoal(viewModel: GoalViewModel) {
+fun AddGoal(viewModel: GoalViewModel = koinInject()) {
 
     val navigator = LocalNavigator.currentOrThrow
     GoalScaffold (
@@ -74,14 +68,13 @@ fun AddGoal(viewModel: GoalViewModel) {
         Box(modifier = Modifier.fillMaxSize()) {
             var title by rememberSaveable { mutableStateOf("") }
             var description by rememberSaveable { mutableStateOf("") }
+            var icon by rememberSaveable { mutableStateOf("") }
+            val frequency = rememberSaveable { mutableSetOf<DayOfWeek>() }
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                /*Text(
-                stringResource(Res.string.new_goal),
-                style = MaterialTheme.typography.displaySmall
-            )*/
 
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -116,8 +109,9 @@ fun AddGoal(viewModel: GoalViewModel) {
                     title = stringResource(Res.string.pick_icon),
                     elements = GoalIcons.entries.map { it.icon },
                     initialState = 0,
-                    onChipSelected = { _, element ->
-                        println(element)
+                    onChipSelected = { _, iconVector ->
+                        println(iconVector)
+                        icon = GoalIcons.fromImageVector(iconVector).name
                     }
                 )
 
@@ -129,7 +123,10 @@ fun AddGoal(viewModel: GoalViewModel) {
                     title = stringResource(Res.string.frequency),
                     elements = weekDays,
                     initialState = setOf(0, 2, 4),
-                    onChipSelected = { items -> println(items) }
+                    onChipSelected = { items ->
+                        frequency.clear()
+                        frequency.addAll(items.map { getDayWeekBy(it) })
+                    }
                 )
 
             }
@@ -138,7 +135,16 @@ fun AddGoal(viewModel: GoalViewModel) {
                 modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)
                     .padding(PaddingValues(0.dp, 0.dp, 0.dp, 16.dp)),
                 onClick = {
-                    viewModel.onEvent(UIEvent.SaveGoal(goal = Goal(1, title, description)))
+                    viewModel.onEvent(
+                        UIEvent.SaveGoal(
+                            goal = Goal(
+                                title = title,
+                                description = description,
+                                icon = icon,
+                                frequency = frequency
+                            )
+                        )
+                    )
                     navigator.pop()
                 },
             ) {
@@ -149,6 +155,18 @@ fun AddGoal(viewModel: GoalViewModel) {
 
 }
 
+fun getDayWeekBy(index: Int): DayOfWeek {
+    return when (index) {
+        0 -> DayOfWeek.MONDAY
+        1 -> DayOfWeek.TUESDAY
+        2 -> DayOfWeek.WEDNESDAY
+        3 -> DayOfWeek.THURSDAY
+        4 -> DayOfWeek.FRIDAY
+        5 -> DayOfWeek.SATURDAY
+        6 -> DayOfWeek.SUNDAY
+        else -> DayOfWeek.MONDAY
+    }
+}
 
 enum class GoalIcons(
     val icon: ImageVector
@@ -158,5 +176,11 @@ enum class GoalIcons(
     FITNESS(Icons.Default.FitnessCenter),
     SLEEP(Icons.Default.Bedtime),
     BOOK(Icons.Default.ImportContacts),
-    PETS(Icons.Default.Pets),
+    PETS(Icons.Default.Pets);
+
+    companion object {
+        fun fromImageVector(icon: ImageVector): GoalIcons {
+            return entries.find { it.icon == icon } ?: BOOK // Valor por defecto
+        }
+    }
 }

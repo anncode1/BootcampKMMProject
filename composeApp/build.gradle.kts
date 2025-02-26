@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -33,7 +34,16 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            // Ktor
             implementation(libs.ktor.client.okhttp)
+
+            // SQLDelight
+            implementation(libs.sqlite.android.driver)
+
+            // Koin
+            implementation(libs.koin.android)
+            implementation(libs.koin.android.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -57,10 +67,21 @@ kotlin {
 
             // DateTime
             implementation(libs.kotlinx.datetime)
+
+            //SQLDelight
+            implementation(libs.sqlite.coroutines.driver)
+
+            // Koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
 
         iosMain.dependencies {
+            // Ktor
             implementation(libs.ktor.client.darwin)
+
+            //SQLDelight
+            implementation(libs.sqlite.ios.driver)
         }
     }
 }
@@ -94,5 +115,13 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+}
+
+sqldelight {
+    databases {
+        create("GoalsDB") {
+            packageName.set("com.anncode.bootcampkmm.composeApp.database")
+        }
+    }
 }
 

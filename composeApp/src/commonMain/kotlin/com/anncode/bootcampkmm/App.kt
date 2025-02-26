@@ -20,11 +20,7 @@ fun App() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            //Home()
-            //AddGoalScreen()
-
-            val goalViewModel = GoalViewModel()
-            Navigator(HomeScreen(goalViewModel)) { navigator ->
+            Navigator(HomeScreen()) { navigator ->
                 SlideTransition(navigator)
             }
 

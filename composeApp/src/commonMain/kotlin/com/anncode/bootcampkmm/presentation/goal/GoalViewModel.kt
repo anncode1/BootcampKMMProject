@@ -1,11 +1,14 @@
 package com.anncode.bootcampkmm.presentation.goal
 
 import com.anncode.bootcampkmm.domain.goal.Goal
+import com.anncode.bootcampkmm.domain.goal.repository.GoalsRepository
 import com.anncode.bootcampkmm.presentation.AbstractViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -15,7 +18,9 @@ import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 
-class GoalViewModel : AbstractViewModel() {
+class GoalViewModel(
+    private val goalsRepository: GoalsRepository
+) : AbstractViewModel() {
 
     private val _uiState = MutableStateFlow(UIState())
     val onState: StateFlow<UIState> = _uiState.asStateFlow()
@@ -26,25 +31,44 @@ class GoalViewModel : AbstractViewModel() {
         when (intent) {
             is UIEvent.LoadMonths -> months.value = intent.months
             is UIEvent.LoadGoals -> getGoalsBy(intent.date)
-            is UIEvent.SaveGoal -> {
-                _uiState.update { currentState ->
-                    currentState.copy(goals = currentState.goals + intent.goal, userName = "Anahi")
-                }
-            }
-            else -> {}
+            is UIEvent.SaveGoal -> saveGoal(intent.goal)
+            is UIEvent.OnCompleteGoal -> completeGoal(intent.goal, intent.isCompleted)
+        }
+    }
+
+    private fun completeGoal(goal: Goal, completed: Boolean) {
+        coroutineScope.launch {
+            goalsRepository.completeGoal()
+        }
+    }
+
+    private fun saveGoal(goal: Goal) {
+        coroutineScope.launch {
+            goalsRepository.insertGoal(goal)
         }
     }
 
     private fun getGoalsBy(date: LocalDate) {
-
         val currentMonth = date.month.ordinal
-        _uiState.update { currentState ->
-            currentState.copy(
-                month = months.value[currentMonth],
-                currentDayIndex = date.dayOfMonth - 1,
-                days = daysPerMonth(date.year, date.month.number),
-            )
+        coroutineScope.launch {
+            goalsRepository.insertGoalByDate(date)
         }
+        coroutineScope.launch {
+            goalsRepository.getGoalsBy(date)
+                .catch {  } // errors
+                .collect { goals ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            goals = goals,
+                            month = months.value[currentMonth],
+                            currentDayIndex = date.dayOfMonth - 1,
+                            days = daysPerMonth(date.year, date.month.number),
+                        )
+                    }
+                }
+        }
+
+
     }
 
     private fun daysPerMonth(year: Int, month: Int): List<String> {
@@ -72,5 +96,9 @@ sealed class UIEvent{
     ) : UIEvent()
 
     data class SaveGoal(val goal: Goal) : UIEvent()
-    data class OnGoalCompleted(val goal: Goal) : UIEvent()
+    data class OnCompleteGoal(
+        val goal: Goal,
+        val currentDate: LocalDate,
+        val isCompleted: Boolean
+    ) : UIEvent()
 }

@@ -24,12 +24,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.anncode.bootcampkmm.presentation.goal.UIEvent
 
 @Composable
 fun GoalCard(
     icon: ImageVector,
     title: String,
-    description: String
+    description: String,
+    onComplete: (isCompleted: Boolean) -> Unit
 ) {
     var checkedState by remember { mutableStateOf(false) }
     Card (
@@ -37,6 +39,7 @@ fun GoalCard(
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         onClick = {
             checkedState = !checkedState
+            onComplete(checkedState)
         }
     ) {
         Row(

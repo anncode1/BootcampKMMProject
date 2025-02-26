@@ -13,12 +13,14 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 compose-multiplatform = "1.7.0"
 junit = "4.13.2"
-kotlin = "2.1.0"
-
+kotlin = "2.1.10-RC2"
 coil = "3.0.0"
 ktor = "3.0.3"
 voyagerNavigator = "1.1.0-beta03"
 kotlinxDatetime = "0.6.0"
+sqliteDriver = "2.0.2"
+koin = "3.5.0"
+koin-compose = "1.1.0"
 
 [libraries]
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
@@ -43,9 +45,22 @@ voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerNavigator" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 
+sqlite-coroutines-driver = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqliteDriver" }
+sqlite-ios-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqliteDriver" }
+sqlite-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqliteDriver" }
+
+#KOIN
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin"}
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin"}
+koin-android-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin"}
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin-compose"}
+
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqliteDriver"}
