@@ -1,8 +1,11 @@
 package com.anncode.bootcampkmm.presentation.composables.core
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
@@ -44,42 +47,43 @@ fun <T> ChipGroup(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     LazyRow (
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         horizontalArrangement = Arrangement.spacedBy(3.dp),
         state = listState
     ) {
 
-        elements.forEachIndexed { index, element ->
-            item(index) {
-                FilterChip(
-                    selected = chipSelectedState == index,
-                    onClick = {
-                        chipSelectedState = index
-                        onChipSelected(index, element)
-                    },
-                    label = {
-                        when {
-                            element is ImageVector -> {
-                                Icon(
-                                    painter = rememberVectorPainter(element),
-                                    contentDescription = "",
-                                    modifier = Modifier.size(30.dp)
-                                )
-                            }
-
-                            else -> {
-                                Text(
-                                    text = element.toString(),
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                            }
+        itemsIndexed(
+            items = elements
+        ) { index, element ->
+            FilterChip(
+                selected = chipSelectedState == index,
+                onClick = {
+                    chipSelectedState = index
+                    onChipSelected(index, element)
+                },
+                label = {
+                    when {
+                        element is ImageVector -> {
+                            Icon(
+                                painter = rememberVectorPainter(element),
+                                contentDescription = "",
+                                modifier = Modifier.size(30.dp)
+                            )
                         }
 
-                    },
-                    shape = shape,
-                    modifier = modifier
+                        else -> {
+                            Text(
+                                text = element.toString(),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+                    }
 
-                )
-            }
+                },
+                shape = shape,
+                modifier = modifier
+
+            )
         }
 
         coroutineScope.launch {

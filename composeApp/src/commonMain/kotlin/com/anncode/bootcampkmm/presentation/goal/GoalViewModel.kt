@@ -50,23 +50,25 @@ class GoalViewModel(
     }
 
     private fun getGoalsBy(date: LocalDate) {
+        val newDate = date
         val currentMonth = date.month.ordinal
         coroutineScope.launch {
             goalsRepository.insertGoalByDate(date)
         }
         coroutineScope.launch {
-            goalsRepository.getGoalsBy(date)
-                .catch {  } // errors
-                .collect { goals ->
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            goals = goals,
-                            month = months.value[currentMonth],
-                            currentDayIndex = date.dayOfMonth - 1,
-                            days = daysPerMonth(date.year, date.month.number),
-                        )
-                    }
+            try {
+                val goals = goalsRepository.getGoalsBy(date)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        goals = goals,
+                        month = months.value[currentMonth],
+                        currentDayIndex = newDate.dayOfMonth - 1,
+                        days = daysPerMonth(date.year, date.month.number),
+                    )
                 }
+            } catch (_: Throwable) {
+
+            }
         }
 
 
@@ -93,7 +95,7 @@ sealed class UIEvent{
         val months: List<String> = emptyList()
     ) : UIEvent()
     data class LoadGoals(
-        val date: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
+        val date: LocalDate// = Clock.System.todayIn(TimeZone.currentSystemDefault()),
     ) : UIEvent()
 
     data class SaveGoal(val goal: Goal) : UIEvent()

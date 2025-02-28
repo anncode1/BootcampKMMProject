@@ -47,26 +47,23 @@ class GoalsRepositoryImpl(
             }
     }
 
-    override suspend fun getGoalsBy(date: LocalDate): Flow<List<GoalDay>> {
+    override suspend fun getGoalsBy(date: LocalDate): List<GoalDay> {
         return queries.selectGoalsByDate(date.toString())
-            .asFlow()
-            .mapToList(currentCoroutineContext())
-            .map { goalDayEntities ->
-                goalDayEntities.map { goalEntity ->
-                    GoalDay(
-                        id = goalEntity.id_,
-                        goal = Goal(
-                            id = goalEntity.id,
-                            title = goalEntity.title,
-                            description = goalEntity.description.orEmpty(),
-                            icon = goalEntity.icon,
-                            frequency = goalEntity.frequency.toFrequency()
-                            //TUESDAY,THURSDAY
-                        ),
-                        isCompleted = goalEntity.isCompleted,
-                        date = LocalDate.parse(goalEntity.date)
-                    )
-                }
+            .executeAsList()
+            .map { goalEntity ->
+                GoalDay(
+                    id = goalEntity.id_,
+                    goal = Goal(
+                        id = goalEntity.id,
+                        title = goalEntity.title,
+                        description = goalEntity.description.orEmpty(),
+                        icon = goalEntity.icon,
+                        frequency = goalEntity.frequency.toFrequency()
+                        //TUESDAY,THURSDAY
+                    ),
+                    isCompleted = goalEntity.isCompleted,
+                    date = LocalDate.parse(goalEntity.date)
+                )
             }
     }
 

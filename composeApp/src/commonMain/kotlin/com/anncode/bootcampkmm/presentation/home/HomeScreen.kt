@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -75,15 +77,18 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                 )
             }
 
-            LaunchedEffect(key1 = months) {
+            LaunchedEffect(key1 = Unit) {
                 viewModel.onEvent(UIEvent.LoadMonths(months))
-                viewModel.onEvent(UIEvent.LoadGoals())
+                viewModel.onEvent(UIEvent.LoadGoals(LocalDate.parse(currentDateSelected)))
             }
 
             Column(
-                verticalArrangement = Arrangement.spacedBy(18.dp)
+                verticalArrangement = Arrangement.spacedBy(18.dp),
+                modifier = Modifier.fillMaxSize()
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                ) {
                     Text(
                         homeState.month,
                         style = MaterialTheme.typography.titleMedium
@@ -95,16 +100,17 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                         elements = homeState.days,
                         initialState = homeState.currentDayIndex
                     ) { index, day ->
-
                         val dateTmp = Clock.System.todayIn(TimeZone.currentSystemDefault())
                         currentDateSelected = LocalDate(dateTmp.year, dateTmp.month, day.toInt()).toString() // 2025-02-25
-                        viewModel.onEvent(UIEvent.LoadGoals(
-                            date = LocalDate.parse(currentDateSelected)
-                        ))
+                        viewModel.onEvent(
+                            UIEvent.LoadGoals(
+                                date = LocalDate.parse(currentDateSelected)
+                            )
+                        )
                     }
                 }
 
-                Column {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         stringResource(Res.string.welcome),
                         style = MaterialTheme.typography.displaySmall
@@ -117,7 +123,9 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                 }
 
                 if (homeState.goals.isNotEmpty()) {
-                    LazyColumn {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         items(homeState.goals) { goalDay ->
                             GoalCard(
                                 GoalIcons.valueOf(goalDay.goal.icon).icon,
