@@ -7,17 +7,13 @@ import com.anncode.bootcampkmm.presentation.AbstractViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.daysUntil
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
-import kotlinx.datetime.todayIn
 
 class GoalViewModel(
     private val goalsRepository: GoalsRepository
@@ -27,10 +23,14 @@ class GoalViewModel(
     val onState: StateFlow<UIState> = _uiState.asStateFlow()
 
     private val months = MutableStateFlow(emptyList<String>())
+    private val days = MutableStateFlow(emptyList<String>())
 
     fun onEvent(intent: UIEvent) {
         when (intent) {
-            is UIEvent.LoadMonths -> months.value = intent.months
+            is UIEvent.LoadDaysAndMonths -> {
+                months.value = intent.months
+                days.value = intent.weekDays
+            }
             is UIEvent.LoadGoals -> getGoalsBy(intent.date)
             is UIEvent.SaveGoal -> saveGoal(intent.goal)
             is UIEvent.OnCompleteGoal -> completeGoal(intent.goalDay)
@@ -50,8 +50,8 @@ class GoalViewModel(
     }
 
     private fun getGoalsBy(date: LocalDate) {
-        val newDate = date
-        val currentMonth = date.month.ordinal
+        val currentMonthIndex = date.month.ordinal
+        val currentDayIndex = date.dayOfMonth - 1
         coroutineScope.launch {
             goalsRepository.insertGoalByDate(date)
         }
@@ -61,13 +61,15 @@ class GoalViewModel(
                 _uiState.update { currentState ->
                     currentState.copy(
                         goals = goals,
-                        month = months.value[currentMonth],
-                        currentDayIndex = newDate.dayOfMonth - 1,
+                        month = months.value[currentMonthIndex],
+                        currentWeekDay = days.value[date.dayOfWeek.ordinal],
+                        currentDayIndex = currentDayIndex,
                         days = daysPerMonth(date.year, date.month.number),
                     )
                 }
-            } catch (_: Throwable) {
-
+            } catch (e: Throwable) {
+                // Error
+                println("Error: ${e.printStackTrace()}")
             }
         }
 
@@ -84,6 +86,7 @@ class GoalViewModel(
 data class UIState(
     val month: String = "",
     val days: List<String> = emptyList(),
+    val currentWeekDay: String = "",
     val currentDayIndex: Int = 0,
     val goals: List<GoalDay> = emptyList(),
     val userName: String = ""
@@ -91,15 +94,16 @@ data class UIState(
 
 sealed class UIEvent{
 
-    data class LoadMonths(
-        val months: List<String> = emptyList()
+    data class LoadDaysAndMonths(
+        val weekDays: List<String>,
+        val months: List<String>
     ) : UIEvent()
     data class LoadGoals(
-        val date: LocalDate// = Clock.System.todayIn(TimeZone.currentSystemDefault()),
+        val date: LocalDate
     ) : UIEvent()
-
-    data class SaveGoal(val goal: Goal) : UIEvent()
     data class OnCompleteGoal(
         val goalDay: GoalDay
     ) : UIEvent()
+
+    data class SaveGoal(val goal: Goal) : UIEvent()
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import bootcampkmmproject.composeapp.generated.resources.Res
 import bootcampkmmproject.composeapp.generated.resources.months
 import bootcampkmmproject.composeapp.generated.resources.today_goals
+import bootcampkmmproject.composeapp.generated.resources.week_days
 import bootcampkmmproject.composeapp.generated.resources.welcome
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -69,6 +70,9 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
             var months by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
             months = stringArrayResource(Res.array.months)
 
+            var weekDays by rememberSaveable { mutableStateOf<List<String>>(emptyList()) }
+            weekDays = stringArrayResource(Res.array.week_days)
+
             var currentDateSelected by rememberSaveable {
                 mutableStateOf(
                     Clock.System.todayIn(
@@ -77,8 +81,8 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                 )
             }
 
-            LaunchedEffect(key1 = Unit) {
-                viewModel.onEvent(UIEvent.LoadMonths(months))
+            LaunchedEffect(key1 = months) {
+                viewModel.onEvent(UIEvent.LoadDaysAndMonths(weekDays, months))
                 viewModel.onEvent(UIEvent.LoadGoals(LocalDate.parse(currentDateSelected)))
             }
 
@@ -89,17 +93,13 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
                 Column(
                     modifier = Modifier.fillMaxWidth().wrapContentHeight()
                 ) {
-                    Text(
-                        homeState.month,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
                     // Days list
                     ChipGroup(
                         modifier = Modifier.size(55.dp),
+                        title = homeState.month,
                         elements = homeState.days,
                         initialState = homeState.currentDayIndex
-                    ) { index, day ->
+                    ) { _, day ->
                         val dateTmp = Clock.System.todayIn(TimeZone.currentSystemDefault())
                         currentDateSelected = LocalDate(dateTmp.year, dateTmp.month, day.toInt()).toString() // 2025-02-25
                         viewModel.onEvent(
@@ -112,7 +112,8 @@ fun Home(viewModel: GoalViewModel = koinInject()) {
 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        stringResource(Res.string.welcome),
+                        //stringResource(Res.string.welcome),
+                        text = homeState.currentWeekDay,
                         style = MaterialTheme.typography.displaySmall
                     )
 
